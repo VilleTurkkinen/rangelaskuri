@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realistinen sähköpyörän Rangelaskuri</title>
+    <title>Sähköpyörän Rangelaskuri</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,7 +17,7 @@
         }
         .container {
             width: 100%;
-            max-width: 700px; /* Setting the maximum width to 650px */
+            max-width: 700px; /* Setting the maximum width to 700px */
             box-sizing: border-box; /* Include padding and border in the element's total width and height */
             margin: 10px;
             background: #f4f4f4;
@@ -172,12 +172,10 @@
             // Constants
             const batteryVoltage = 36; // Assuming a common 36V battery
             const baselineRiderWeight = 92; // Baseline rider weight in kg
-            const baselineBatteryWh = 625; // Baseline battery capacity in Wh
             const baselineBatteryCapacity = 0.77; // Baseline battery capacity percentage
-            const avgConsumptionEco = 0.203; // Ah/km for setting 1 (Eco)
-            const avgConsumptionNormaali = 0.257; // Ah/km for setting 2 (Normaali)
-            const avgConsumptionKorkea = 0.330; // Ah/km for setting 3 (Korkea)
-            const avgConsumptionTurbo = 0.393; // Ah/km for setting 4 (Turbo)
+            const avgConsumptionEco50kg = 0.13; // Ah/km for Eco (50kg)
+            const avgConsumptionEco90kg = 0.202; // Ah/km for Eco (90kg)
+            const avgConsumptionTurbo90kg = 0.393; // Ah/km for Turbo (90kg)
 
             // Calculate battery capacity in Ah
             const batteryAh = batteryWh / batteryVoltage;
@@ -185,11 +183,19 @@
             // Calculate effective battery capacity in Ah based on given percentage
             const effectiveBatteryAh = batteryAh * baselineBatteryCapacity;
 
-            // Calculate consumption for different assistance levels
-            const avgConsumption = (assistance === 1 ? avgConsumptionEco :
-                                   (assistance === 2 ? avgConsumptionNormaali :
-                                   (assistance === 3 ? avgConsumptionKorkea :
-                                   avgConsumptionTurbo)));
+            // Calculate consumption for different assistance levels and rider weights
+            let avgConsumption;
+            if (riderWeight <= 50) {
+                avgConsumption = (assistance === 1 ? avgConsumptionEco50kg :
+                                (assistance === 2 ? (avgConsumptionEco50kg + avgConsumptionTurbo90kg) / 2 :
+                                (assistance === 3 ? (avgConsumptionEco50kg + avgConsumptionTurbo90kg) / 1.5 :
+                                avgConsumptionTurbo90kg)));
+            } else {
+                avgConsumption = (assistance === 1 ? avgConsumptionEco90kg :
+                                (assistance === 2 ? (avgConsumptionEco90kg + avgConsumptionTurbo90kg) / 2 :
+                                (assistance === 3 ? (avgConsumptionEco90kg + avgConsumptionTurbo90kg) / 1.5 :
+                                avgConsumptionTurbo90kg)));
+            }
 
             // Calculate base range (km) without adjustments
             const baseRange = effectiveBatteryAh / avgConsumption;
