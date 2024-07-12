@@ -52,6 +52,13 @@
             margin: 0 auto 20px auto;
             color: #001f3f;
         }
+        .battery-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            margin: 0 auto 10px auto;
+            color: #001f3f;
+        }
         button {
             background-color: #001f3f;
             color: white;
@@ -89,20 +96,20 @@
         </header>
 
         <label for="battery">Akun koko (Wh): <span id="batteryValue">625</span> Wh</label>
-        <input type="range" id="battery" class="slider" min="250" max="1008" value="625" step="1" list="tickmarks">
-        <datalist id="tickmarks">
-            <option value="250"></option>
-            <option value="280"></option>
-            <option value="500"></option>
-            <option value="525"></option>
-            <option value="612"></option>
-            <option value="625"></option>
-            <option value="630"></option>
-            <option value="690"></option>
-            <option value="720"></option>
-            <option value="882"></option>
-            <option value="1008"></option>
-        </datalist>
+        <input type="range" id="battery" class="slider" min="0" max="10" value="5" step="1" list="tickmarks">
+        <div class="battery-labels">
+            <span>250</span>
+            <span>280</span>
+            <span>500</span>
+            <span>525</span>
+            <span>612</span>
+            <span>625</span>
+            <span>630</span>
+            <span>690</span>
+            <span>720</span>
+            <span>882</span>
+            <span>1008</span>
+        </div>
 
         <label for="riderWeight">Pyöräilijän paino (kg): <span id="riderWeightValue">92</span></label>
         <input type="range" id="riderWeight" class="slider" min="50" max="120" value="92">
@@ -132,8 +139,13 @@
     </div>
 
     <script>
-        document.getElementById('battery').addEventListener('input', function() {
-            document.getElementById('batteryValue').textContent = this.value;
+        const batteryValues = [250, 280, 500, 525, 612, 625, 630, 690, 720, 882, 1008];
+        const batterySlider = document.getElementById('battery');
+        const batteryValueDisplay = document.getElementById('batteryValue');
+
+        batterySlider.addEventListener('input', function() {
+            const value = batterySlider.value;
+            batteryValueDisplay.textContent = batteryValues[value];
         });
 
         document.getElementById('riderWeight').addEventListener('input', function() {
@@ -145,7 +157,7 @@
         });
 
         function calculateRange() {
-            const batteryWh = parseFloat(document.getElementById('battery').value);
+            const batteryWh = batteryValues[parseInt(batterySlider.value)];
             const riderWeight = parseFloat(document.getElementById('riderWeight').value);
             const temperature = parseFloat(document.getElementById('temperature').value);
             const assistance = parseFloat(document.getElementById('assistance').value);
