@@ -89,7 +89,20 @@
         </header>
 
         <label for="battery">Akun koko (Wh): <span id="batteryValue">625</span> Wh</label>
-        <input type="range" id="battery" class="slider" min="280" max="1008" value="625" step="1">
+        <input type="range" id="battery" class="slider" min="250" max="1008" value="625" step="1" list="tickmarks">
+        <datalist id="tickmarks">
+            <option value="250"></option>
+            <option value="280"></option>
+            <option value="500"></option>
+            <option value="525"></option>
+            <option value="612"></option>
+            <option value="625"></option>
+            <option value="630"></option>
+            <option value="690"></option>
+            <option value="720"></option>
+            <option value="882"></option>
+            <option value="1008"></option>
+        </datalist>
 
         <label for="riderWeight">Pyöräilijän paino (kg): <span id="riderWeightValue">92</span></label>
         <input type="range" id="riderWeight" class="slider" min="50" max="120" value="92">
@@ -143,22 +156,24 @@
             const baselineBatteryWh = 625; // Baseline battery capacity in Wh
             const baselineBatteryCapacity = 0.77; // Baseline battery capacity percentage
             const avgConsumptionEco = 0.203; // Ah/km for setting 1 (Eco)
+            const avgConsumptionNormaali = 0.257; // Ah/km for setting 2 (Normaali)
+            const avgConsumptionKorkea = 0.330; // Ah/km for setting 3 (Korkea)
             const avgConsumptionTurbo = 0.393; // Ah/km for setting 4 (Turbo)
 
             // Calculate battery capacity in Ah
             const batteryAh = batteryWh / batteryVoltage;
 
-            // Calculate baseline effective battery capacity in Ah
-            const baselineEffectiveBatteryAh = baselineBatteryWh / batteryVoltage * baselineBatteryCapacity;
+            // Calculate effective battery capacity in Ah based on given percentage
+            const effectiveBatteryAh = batteryAh * baselineBatteryCapacity;
 
             // Calculate consumption for different assistance levels
             const avgConsumption = (assistance === 1 ? avgConsumptionEco :
-                                   (assistance === 2 ? (avgConsumptionEco + avgConsumptionTurbo) / 2 :
-                                   (assistance === 3 ? (avgConsumptionEco + avgConsumptionTurbo) / 2 :
+                                   (assistance === 2 ? avgConsumptionNormaali :
+                                   (assistance === 3 ? avgConsumptionKorkea :
                                    avgConsumptionTurbo)));
 
             // Calculate base range (km) without adjustments
-            const baseRange = baselineEffectiveBatteryAh / avgConsumption;
+            const baseRange = effectiveBatteryAh / avgConsumption;
 
             // Rider weight effect (assuming linear decrease by weight)
             const riderWeightEffect = 1 - ((riderWeight - baselineRiderWeight) / baselineRiderWeight) * 0.2;
