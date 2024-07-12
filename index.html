@@ -7,8 +7,8 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f8ff;
-            color: #fff;
+            background-color: #fff;
+            color: #001f3f;
             margin: 0;
             padding: 0;
         }
@@ -18,13 +18,14 @@
             background-color: #001f3f;
             padding: 20px;
             border-radius: 8px;
+            color: #fff;
         }
         .header {
             text-align: center;
             margin-bottom: 20px;
         }
         .header img {
-            width: 100%;
+            width: 50%;
         }
         .header h1 {
             margin: 0;
@@ -60,6 +61,13 @@
         }
         .results {
             margin-top: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
         }
         .small-text {
             font-size: 12px;
@@ -134,8 +142,8 @@
             const baseConsumption = 0.4; // Ah/km
             const batteryCapacity = batteryValue / 250 * 20; // Converting Wh to Ah for a 250W e-bike
 
-            // Adjust the base consumption based on assistance level (simple multiplier for this example)
-            const assistMultipliers = [1, 1.5, 2, 2.5]; // Multipliers for Eko, Normaali, Korkea, Turbo
+            // Adjust the base consumption based on assistance level
+            const assistMultipliers = [1, 0.7576, 0.5455, 0.5152]; // Multipliers for Eko, Normaali, Korkea, Turbo
             const adjustedConsumption = baseConsumption * assistMultipliers[assistValue - 1];
 
             // Calculate range (battery capacity divided by adjusted consumption per km)
