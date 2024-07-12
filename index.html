@@ -89,10 +89,6 @@
             color: #001f3f;
             text-align: center; /* Center-align the footer text */
         }
-        .footer-text a {
-            color: #001f3f;
-            text-decoration: underline;
-        }
     </style>
 </head>
 <body>
@@ -108,7 +104,7 @@
             <span>250</span>
             <span>280</span>
             <span>500</span>
-            <span>525</span>
+            <span>520</span> <!-- Changed from 525Wh to 520Wh -->
             <span>612</span>
             <span>625</span>
             <span>630</span>
@@ -140,13 +136,12 @@
         </div>
 
         <div class="footer-text">
-            Arvot on laskettu Uppsalan yliopiston Mario Nikolovin Pro Gradun keskimääräisten arvojen perusteella<br>
-            (<a href="https://uu.diva-portal.org/smash/get/diva2:1840744/FULLTEXT01.pdf" target="_blank">https://uu.diva-portal.org/smash/get/diva2:1840744/FULLTEXT01.pdf</a>)
+            Annetut arvot ovat keskiarvoja ja vaihtelua esiintyy riippuen ajomaastosta ja moottorin tyypistä, moottorin merkistä, moottorin maksimiväännöstä ja maksimipiikkitehosta. Monesti arvoihin vaikuttaa positiivisesti myötätuuli ja yli 25kmh tuntinopeus, jossa avustusta ei ole. Negatiivisesti arvoihin vaikuttaa olennaisesti ajomaasto, inklinaatio sekä vastatuuli.
         </div>
     </div>
 
     <script>
-        const batteryValues = [250, 280, 500, 525, 612, 625, 630, 690, 720, 882, 1008];
+        const batteryValues = [250, 280, 500, 520, 612, 625, 630, 690, 720, 882, 1008];
         const batterySlider = document.getElementById('battery');
         const batteryValueDisplay = document.getElementById('batteryValue');
 
@@ -171,11 +166,28 @@
 
             // Constants
             const batteryVoltage = 36; // Assuming a common 36V battery
-            const baselineRiderWeight = 92; // Baseline rider weight in kg
-            const baselineBatteryCapacity = 0.77; // Baseline battery capacity percentage
-            const avgConsumptionEco50kg = 0.13; // Ah/km for Eco (50kg)
-            const avgConsumptionEco90kg = 0.202; // Ah/km for Eco (90kg)
-            const avgConsumptionTurbo90kg = 0.393; // Ah/km for Turbo (90kg)
+            const baselineBatteryCapacity = 1.0; // Assume 100% capacity for simplicity
+            const consumptionData = {
+                "50kg_Eco": {
+                    "520Wh": 110 / (520 / 36),
+                    "720Wh": 160 / (720 / 36),
+                    "1008Wh": 200 / (1008 / 36)
+                },
+                "90kg": {
+                    "Eco": 85.71 / (625 / 36),
+                    "Turbo": 44.16 / (625 / 36)
+                }
+            };
+
+            // Select the appropriate consumption based on the rider weight and assistance level
+            let avgConsumption;
+            if (riderWeight <= 50 && assistance === 1) {
+                if (batteryWh === 520) avgConsumption = consumptionData["50kg_Eco"]["520Wh"];
+                if (batteryWh === 720) avgConsumption = consumptionData["50kg_Eco"]["720Wh"];
+                if (batteryWh === 1008) avgConsumption = consumptionData["50kg_Eco"]["1008Wh"];
+            } else if (riderWeight >= 90) {
+                avgConsumption = (assistance === 1) ? consumptionData["90kg"]["Eco"] : consumptionData["90kg"]["Turbo"];
+            }
 
             // Calculate battery capacity in Ah
             const batteryAh = batteryWh / batteryVoltage;
@@ -183,25 +195,11 @@
             // Calculate effective battery capacity in Ah based on given percentage
             const effectiveBatteryAh = batteryAh * baselineBatteryCapacity;
 
-            // Calculate consumption for different assistance levels and rider weights
-            let avgConsumption;
-            if (riderWeight <= 50) {
-                avgConsumption = (assistance === 1 ? avgConsumptionEco50kg :
-                                (assistance === 2 ? (avgConsumptionEco50kg + avgConsumptionTurbo90kg) / 2 :
-                                (assistance === 3 ? (avgConsumptionEco50kg + avgConsumptionTurbo90kg) / 1.5 :
-                                avgConsumptionTurbo90kg)));
-            } else {
-                avgConsumption = (assistance === 1 ? avgConsumptionEco90kg :
-                                (assistance === 2 ? (avgConsumptionEco90kg + avgConsumptionTurbo90kg) / 2 :
-                                (assistance === 3 ? (avgConsumptionEco90kg + avgConsumptionTurbo90kg) / 1.5 :
-                                avgConsumptionTurbo90kg)));
-            }
-
             // Calculate base range (km) without adjustments
             const baseRange = effectiveBatteryAh / avgConsumption;
 
             // Rider weight effect (assuming linear decrease by weight)
-            const riderWeightEffect = 1 - ((riderWeight - baselineRiderWeight) / baselineRiderWeight) * 0.2;
+            const riderWeightEffect = 1 - ((riderWeight - 50) / 70) * 0.2;
 
             // Temperature effect
             let temperatureEffect;
