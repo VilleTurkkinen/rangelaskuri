@@ -34,7 +34,7 @@
             margin-bottom: 10px;
             color: #001f3f;
         }
-        select, input[type="range"], button {
+        input[type="range"], button {
             width: 80%;
             padding: 10px;
             margin-bottom: 20px;
@@ -88,20 +88,11 @@
             <h1>Sähköpyörän rangelaskuri</h1>
         </header>
 
-        <label for="battery">Akun koko (Wh):</label>
-        <select id="battery">
-            <option value="360">360 Wh</option>
-            <option value="540">540 Wh</option>
-            <option value="630">630 Wh</option>
-            <option value="690">690 Wh</option>
-            <option value="720">720 Wh</option>
-            <option value="856">856 Wh</option>
-            <option value="882">882 Wh</option>
-            <option value="1008">1008 Wh</option>
-        </select>
+        <label for="battery">Akun koko (Wh): <span id="batteryValue">625</span> Wh</label>
+        <input type="range" id="battery" class="slider" min="280" max="1008" value="625" step="1">
 
-        <label for="riderWeight">Pyöräilijän paino (kg): <span id="riderWeightValue">50</span></label>
-        <input type="range" id="riderWeight" class="slider" min="50" max="120" value="50">
+        <label for="riderWeight">Pyöräilijän paino (kg): <span id="riderWeightValue">92</span></label>
+        <input type="range" id="riderWeight" class="slider" min="50" max="120" value="92">
 
         <label for="temperature">Ulkona lämpötila (°C): <span id="temperatureValue">20</span></label>
         <input type="range" id="temperature" class="slider" min="-20" max="30" value="20">
@@ -128,6 +119,10 @@
     </div>
 
     <script>
+        document.getElementById('battery').addEventListener('input', function() {
+            document.getElementById('batteryValue').textContent = this.value;
+        });
+
         document.getElementById('riderWeight').addEventListener('input', function() {
             document.getElementById('riderWeightValue').textContent = this.value;
         });
@@ -143,18 +138,30 @@
             const assistance = parseFloat(document.getElementById('assistance').value);
 
             // Constants
-            const avgConsumptionAhKm = 0.4;
             const batteryVoltage = 36; // Assuming a common 36V battery
-            const avgBikeWeight = 25;
+            const baselineRiderWeight = 92; // Baseline rider weight in kg
+            const baselineBatteryWh = 625; // Baseline battery capacity in Wh
+            const baselineBatteryCapacity = 0.77; // Baseline battery capacity percentage
+            const avgConsumptionEco = 0.203; // Ah/km for setting 1 (Eco)
+            const avgConsumptionTurbo = 0.393; // Ah/km for setting 4 (Turbo)
 
             // Calculate battery capacity in Ah
             const batteryAh = batteryWh / batteryVoltage;
 
+            // Calculate baseline effective battery capacity in Ah
+            const baselineEffectiveBatteryAh = baselineBatteryWh / batteryVoltage * baselineBatteryCapacity;
+
+            // Calculate consumption for different assistance levels
+            const avgConsumption = (assistance === 1 ? avgConsumptionEco :
+                                   (assistance === 2 ? (avgConsumptionEco + avgConsumptionTurbo) / 2 :
+                                   (assistance === 3 ? (avgConsumptionEco + avgConsumptionTurbo) / 2 :
+                                   avgConsumptionTurbo)));
+
             // Calculate base range (km) without adjustments
-            const baseRange = batteryAh / avgConsumptionAhKm;
+            const baseRange = baselineEffectiveBatteryAh / avgConsumption;
 
             // Rider weight effect (assuming linear decrease by weight)
-            const riderWeightEffect = 1 - ((riderWeight - 50) / 70) * 0.2; // 20% reduction for 70kg increase
+            const riderWeightEffect = 1 - ((riderWeight - baselineRiderWeight) / baselineRiderWeight) * 0.2;
 
             // Temperature effect
             let temperatureEffect;
@@ -168,28 +175,8 @@
                 temperatureEffect = 0.9 + (temperature - 25) * 0.01; // Linear from 90% at 25°C to 95% at 30°C
             }
 
-            // Assistance effect
-            let assistanceEffect;
-            switch (assistance) {
-                case 1:
-                    assistanceEffect = 1; // Eco (100% range)
-                    break;
-                case 2:
-                    assistanceEffect = (1 + 0.7576) / 2; // Normaali (average of original and 75.76% range)
-                    break;
-                case 3:
-                    assistanceEffect = (1 + 0.5455) / 2; // Korkea (average of original and 54.55% range)
-                    break;
-                case 4:
-                    assistanceEffect = (1 + 0.5152) / 2; // Turbo (average of original and 51.52% range)
-                    break;
-                default:
-                    assistanceEffect = 1; // Default to Eco
-                    break;
-            }
-
             // Calculate final range
-            const finalRange = baseRange * riderWeightEffect * temperatureEffect * assistanceEffect;
+            const finalRange = baseRange * riderWeightEffect * temperatureEffect;
 
             // Display result
             document.getElementById('rangeValue').textContent = finalRange.toFixed(2);
