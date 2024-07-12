@@ -99,10 +99,11 @@
         </header>
 
         <label for="battery">Akun koko (Wh): <span id="batteryValue">625</span> Wh</label>
-        <input type="range" id="battery" class="slider" min="0" max="10" value="5" step="1" list="tickmarks">
+        <input type="range" id="battery" class="slider" min="0" max="11" value="5" step="1" list="tickmarks">
         <div class="battery-labels">
             <span>250</span>
             <span>280</span>
+            <span>360</span>
             <span>500</span>
             <span>520</span> <!-- Changed from 525Wh to 520Wh -->
             <span>612</span>
@@ -129,6 +130,10 @@
             <span>Turbo</span>
         </div>
 
+        <label for="motorType">Moottorin tyyppi:</label>
+        <input type="checkbox" id="directDrive" name="motorType" value="directDrive"> Napamoottori (80-90% tehokkuus)<br>
+        <input type="checkbox" id="midDrive" name="motorType" value="midDrive"> Keskimoottori (85-95% tehokkuus)<br>
+
         <button onclick="calculateRange()">Laske kantama</button>
 
         <div id="result" class="result">
@@ -141,7 +146,7 @@
     </div>
 
     <script>
-        const batteryValues = [250, 280, 500, 520, 612, 625, 630, 690, 720, 882, 1008];
+        const batteryValues = [250, 280, 360, 500, 520, 612, 625, 630, 690, 720, 882, 1008];
         const batterySlider = document.getElementById('battery');
         const batteryValueDisplay = document.getElementById('batteryValue');
 
@@ -163,6 +168,8 @@
             const riderWeight = parseFloat(document.getElementById('riderWeight').value);
             const temperature = parseFloat(document.getElementById('temperature').value);
             const assistance = parseFloat(document.getElementById('assistance').value);
+            const isDirectDrive = document.getElementById('directDrive').checked;
+            const isMidDrive = document.getElementById('midDrive').checked;
 
             // Constants
             const batteryVoltage = 36; // Assuming a common 36V battery
@@ -181,6 +188,14 @@
                 }
             };
 
+            // Assistance level effects
+            const assistanceEffects = {
+                1: 1.0, // 100%
+                2: 0.7576, // 75.76%
+                3: 0.5455, // 54.55%
+                4: 0.5152 // 51.52%
+            };
+
             // Select the appropriate consumption based on the rider weight and assistance level
             let avgConsumption;
             if (riderWeight <= 50 && assistance === 1) {
@@ -192,14 +207,25 @@
                 avgConsumption = (assistance === 1) ? 0.136 : 0.393;
             }
 
+            // Motor efficiency effect
+            let motorEfficiencyEffect = 1;
+            if (isDirectDrive) {
+                motorEfficiencyEffect = 0.85; // Midpoint of 80-90% efficiency
+            } else if (isMidDrive) {
+                motorEfficiencyEffect = 0.90; // Midpoint of 85-95% efficiency
+            }
+
             // Calculate battery capacity in Ah
             const batteryAh = batteryWh / batteryVoltage;
 
             // Calculate effective battery capacity in Ah based on given percentage
-            const effectiveBatteryAh = batteryAh * baselineBatteryCapacity;
+            const effectiveBatteryAh = batteryAh * baselineBatteryCapacity * motorEfficiencyEffect;
 
             // Calculate base range (km) without adjustments
             const baseRange = effectiveBatteryAh / avgConsumption;
+
+            // Apply assistance level effect
+            const adjustedRange = baseRange * assistanceEffects[assistance];
 
             // Rider weight effect (assuming linear decrease by weight)
             const riderWeightEffect = 1 - ((riderWeight - 50) / 70) * 0.2;
@@ -217,7 +243,7 @@
             }
 
             // Calculate final range
-            const finalRange = baseRange * riderWeightEffect * temperatureEffect;
+            const finalRange = adjustedRange * riderWeightEffect * temperatureEffect;
 
             // Display result
             document.getElementById('rangeValue').textContent = finalRange.toFixed(2);
