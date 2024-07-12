@@ -35,9 +35,12 @@
             color: #001f3f;
         }
         select, input[type="range"], button {
-            width: 100%;
+            width: 80%;
             padding: 10px;
             margin-bottom: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
         input[type="range"] {
             background-color: #d3d3d3;
@@ -82,6 +85,7 @@
         <select id="battery">
             <option value="360">360 Wh</option>
             <option value="540">540 Wh</option>
+            <option value="630">630 Wh</option>
             <option value="690">690 Wh</option>
             <option value="720">720 Wh</option>
             <option value="856">856 Wh</option>
@@ -143,7 +147,7 @@
             const riderWeightEffect = 1 - ((riderWeight - 50) / 70) * 0.2; // 20% reduction for 70kg increase
 
             // Temperature effect (linear scaling from -20°C to +20°C)
-            const temperatureEffect = (temperature + 20) / 40;
+            const temperatureEffect = 0.5 + ((temperature + 20) / 40) * 0.5;
 
             // Calculate final range
             const finalRange = baseRange * riderWeightEffect * temperatureEffect * assistance;
