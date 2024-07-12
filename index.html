@@ -15,10 +15,11 @@
         .container {
             width: 797.6px;
             margin: 20px auto;
-            background-color: #001f3f;
+            background-color: #fff;
             padding: 20px;
             border-radius: 8px;
-            color: #fff;
+            border: 2px solid #001f3f;
+            color: #001f3f;
         }
         .header {
             text-align: center;
@@ -138,13 +139,13 @@
             const temperatureValue = parseInt(temperature.value);
             const assistValue = parseInt(assist.value);
 
-            // Average power consumption: 0.4 Ah/km for a 250W e-bike
+            // Average power consumption: 0.4 Ah/km for a 250W e-bike (base consumption)
             const baseConsumption = 0.4; // Ah/km
             const batteryCapacity = batteryValue / 250 * 20; // Converting Wh to Ah for a 250W e-bike
 
             // Adjust the base consumption based on assistance level
             const assistMultipliers = [1, 0.7576, 0.5455, 0.5152]; // Multipliers for Eko, Normaali, Korkea, Turbo
-            const adjustedConsumption = baseConsumption * assistMultipliers[assistValue - 1];
+            const adjustedConsumption = baseConsumption / assistMultipliers[assistValue - 1];
 
             // Calculate range (battery capacity divided by adjusted consumption per km)
             let range = batteryCapacity / adjustedConsumption;
