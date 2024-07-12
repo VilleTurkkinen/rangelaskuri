@@ -45,6 +45,13 @@
         input[type="range"] {
             background-color: #d3d3d3;
         }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            margin: 0 auto 20px auto;
+            color: #001f3f;
+        }
         button {
             background-color: #001f3f;
             color: white;
@@ -100,14 +107,13 @@
         <input type="range" id="temperature" class="slider" min="-20" max="30" value="20">
 
         <label for="assistance">Avustustaso:</label>
-        <select id="assistance">
-            <option value="1">Normaali avustus (100% kantama)</option>
-            <option value="1.3">Kevyt avustus (130% kantama)</option>
-            <option value="0.6">Raskas avustus (60% kantama)</option>
-            <option value="0.7576">Asetus 2 (75.76% kantama)</option>
-            <option value="0.5455">Asetus 3 (54.55% kantama)</option>
-            <option value="0.5152">Asetus 4 (51.52% kantama)</option>
-        </select>
+        <input type="range" id="assistance" class="slider" min="1" max="4" value="1" step="1">
+        <div class="range-labels">
+            <span>Eco</span>
+            <span>Normal</span>
+            <span>High</span>
+            <span>Turbo</span>
+        </div>
 
         <button onclick="calculateRange()">Laske kantama</button>
 
@@ -162,8 +168,25 @@
                 temperatureEffect = 0.9 + (temperature - 25) * 0.01; // Linear from 90% at 25°C to 95% at 30°C
             }
 
-            // Assistance effect (average between original and new values)
-            let assistanceEffect = (assistance + 1) / 2;
+            // Assistance effect
+            let assistanceEffect;
+            switch (assistance) {
+                case 1:
+                    assistanceEffect = 1; // Eco (100% range)
+                    break;
+                case 2:
+                    assistanceEffect = (1 + 0.7576) / 2; // Normal (average of original and 75.76% range)
+                    break;
+                case 3:
+                    assistanceEffect = (1 + 0.5455) / 2; // High (average of original and 54.55% range)
+                    break;
+                case 4:
+                    assistanceEffect = (1 + 0.5152) / 2; // Turbo (average of original and 51.52% range)
+                    break;
+                default:
+                    assistanceEffect = 1; // Default to Eco
+                    break;
+            }
 
             // Calculate final range
             const finalRange = baseRange * riderWeightEffect * temperatureEffect * assistanceEffect;
