@@ -10,10 +10,16 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         .container {
-            width: 700px;
-            margin: 20px auto;
+            width: 100%;
+            max-width: 700px; /* Setting the maximum width to 700px */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            margin: 10px;
             background: #fff;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -81,6 +87,7 @@
             margin-top: 20px;
             font-size: 12px; /* Smaller font size */
             color: #001f3f;
+            text-align: center; /* Center-align the footer text */
         }
         .footer-text a {
             color: #001f3f;
