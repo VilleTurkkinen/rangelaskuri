@@ -97,7 +97,7 @@
         <input type="range" id="riderWeight" class="slider" min="50" max="120" value="50">
 
         <label for="temperature">Ulkona lämpötila (°C): <span id="temperatureValue">20</span></label>
-        <input type="range" id="temperature" class="slider" min="-20" max="20" value="20">
+        <input type="range" id="temperature" class="slider" min="-20" max="30" value="20">
 
         <label for="assistance">Avustustaso:</label>
         <select id="assistance">
@@ -147,8 +147,17 @@
             // Rider weight effect (assuming linear decrease by weight)
             const riderWeightEffect = 1 - ((riderWeight - 50) / 70) * 0.2; // 20% reduction for 70kg increase
 
-            // Temperature effect (linear scaling from -20°C to +20°C)
-            const temperatureEffect = 0.5 + ((temperature + 20) / 40) * 0.5;
+            // Temperature effect
+            let temperatureEffect;
+            if (temperature <= -20) {
+                temperatureEffect = 0.5; // 50% capacity at -20°C
+            } else if (temperature <= 0) {
+                temperatureEffect = 0.5 + (temperature + 20) * 0.01; // Linear from 50% at -20°C to 70% at 0°C
+            } else if (temperature <= 25) {
+                temperatureEffect = 1; // 100% capacity from 20°C to 25°C
+            } else if (temperature <= 30) {
+                temperatureEffect = 0.9 + (temperature - 25) * 0.01; // Linear from 90% at 25°C to 95% at 30°C
+            }
 
             // Calculate final range
             const finalRange = baseRange * riderWeightEffect * temperatureEffect * assistance;
