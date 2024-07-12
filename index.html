@@ -110,8 +110,8 @@
         <input type="range" id="assistance" class="slider" min="1" max="4" value="1" step="1">
         <div class="range-labels">
             <span>Eco</span>
-            <span>Normal</span>
-            <span>High</span>
+            <span>Normaali</span>
+            <span>Korkea</span>
             <span>Turbo</span>
         </div>
 
@@ -175,10 +175,10 @@
                     assistanceEffect = 1; // Eco (100% range)
                     break;
                 case 2:
-                    assistanceEffect = (1 + 0.7576) / 2; // Normal (average of original and 75.76% range)
+                    assistanceEffect = (1 + 0.7576) / 2; // Normaali (average of original and 75.76% range)
                     break;
                 case 3:
-                    assistanceEffect = (1 + 0.5455) / 2; // High (average of original and 54.55% range)
+                    assistanceEffect = (1 + 0.5455) / 2; // Korkea (average of original and 54.55% range)
                     break;
                 case 4:
                     assistanceEffect = (1 + 0.5152) / 2; // Turbo (average of original and 51.52% range)
