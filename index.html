@@ -167,26 +167,29 @@
             // Constants
             const batteryVoltage = 36; // Assuming a common 36V battery
             const baselineBatteryCapacity = 1.0; // Assume 100% capacity for simplicity
-            const consumptionData = {
+
+            // Consumption constants based on provided data
+            const consumptionConstants = {
                 "50kg_Eco": {
-                    "520Wh": 110 / (520 / 36),
-                    "720Wh": 160 / (720 / 36),
-                    "1008Wh": 200 / (1008 / 36)
+                    520: 0.136, // Ah/km
+                    720: 0.113, // Ah/km
+                    1008: 0.14 // Ah/km
                 },
                 "90kg": {
-                    "Eco": 85.71 / (625 / 36),
-                    "Turbo": 44.16 / (625 / 36)
+                    "Eco": 0.202, // Ah/km
+                    "Turbo": 0.393 // Ah/km
                 }
             };
 
             // Select the appropriate consumption based on the rider weight and assistance level
             let avgConsumption;
             if (riderWeight <= 50 && assistance === 1) {
-                if (batteryWh === 520) avgConsumption = consumptionData["50kg_Eco"]["520Wh"];
-                if (batteryWh === 720) avgConsumption = consumptionData["50kg_Eco"]["720Wh"];
-                if (batteryWh === 1008) avgConsumption = consumptionData["50kg_Eco"]["1008Wh"];
+                avgConsumption = consumptionConstants["50kg_Eco"][batteryWh] || 0.136;
             } else if (riderWeight >= 90) {
-                avgConsumption = (assistance === 1) ? consumptionData["90kg"]["Eco"] : consumptionData["90kg"]["Turbo"];
+                avgConsumption = (assistance === 1) ? consumptionConstants["90kg"]["Eco"] : consumptionConstants["90kg"]["Turbo"];
+            } else {
+                // Use a default value if no specific match
+                avgConsumption = (assistance === 1) ? 0.136 : 0.393;
             }
 
             // Calculate battery capacity in Ah
