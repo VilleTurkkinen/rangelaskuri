@@ -131,10 +131,12 @@
         </div>
 
         <label for="motorType">Moottorin tyyppi:</label>
-        <input type="checkbox" id="directDrive" name="motorType" value="directDrive"> Napamoottori (80-90% tehokkuus)<br>
-        <input type="checkbox" id="midDrive" name="motorType" value="midDrive"> Keskimoottori (85-95% tehokkuus)<br>
+        <input type="radio" id="directDrive" name="motorType" value="directDrive"> Napamoottori (80-90% hyötysuhde)<br>
+        <input type="radio" id="midDrive" name="motorType" value="midDrive"> Keskimoottori (85-95% hyötysuhde)<br>
 
         <button onclick="calculateRange()">Laske kantama</button>
+
+        <p>Napamoottori 80-90% hyötysuhde, Keskimoottori 85-95% hyötysuhde</p>
 
         <div id="result" class="result">
             <h2>Arvioitu kantama: <span id="rangeValue"></span> km</h2>
@@ -168,8 +170,7 @@
             const riderWeight = parseFloat(document.getElementById('riderWeight').value);
             const temperature = parseFloat(document.getElementById('temperature').value);
             const assistance = parseFloat(document.getElementById('assistance').value);
-            const isDirectDrive = document.getElementById('directDrive').checked;
-            const isMidDrive = document.getElementById('midDrive').checked;
+            const motorType = document.querySelector('input[name="motorType"]:checked').value;
 
             // Constants
             const batteryVoltage = 36; // Assuming a common 36V battery
@@ -209,23 +210,24 @@
 
             // Motor efficiency effect
             let motorEfficiencyEffect = 1;
-            if (isDirectDrive) {
-                motorEfficiencyEffect = 0.85; // Midpoint of 80-90% efficiency
-            } else if (isMidDrive) {
-                motorEfficiencyEffect = 0.90; // Midpoint of 85-95% efficiency
+            if (motorType === "midDrive") {
+                motorEfficiencyEffect = 1.05; // Add 5% to range for mid-drive motor
             }
 
             // Calculate battery capacity in Ah
             const batteryAh = batteryWh / batteryVoltage;
 
             // Calculate effective battery capacity in Ah based on given percentage
-            const effectiveBatteryAh = batteryAh * baselineBatteryCapacity * motorEfficiencyEffect;
+            const effectiveBatteryAh = batteryAh * baselineBatteryCapacity;
 
             // Calculate base range (km) without adjustments
             const baseRange = effectiveBatteryAh / avgConsumption;
 
             // Apply assistance level effect
             const adjustedRange = baseRange * assistanceEffects[assistance];
+
+            // Apply motor efficiency effect
+            const motorAdjustedRange = adjustedRange * motorEfficiencyEffect;
 
             // Rider weight effect (assuming linear decrease by weight)
             const riderWeightEffect = 1 - ((riderWeight - 50) / 70) * 0.2;
@@ -243,7 +245,7 @@
             }
 
             // Calculate final range
-            const finalRange = adjustedRange * riderWeightEffect * temperatureEffect;
+            const finalRange = motorAdjustedRange * riderWeightEffect * temperatureEffect;
 
             // Display result
             document.getElementById('rangeValue').textContent = finalRange.toFixed(2);
