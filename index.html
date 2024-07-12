@@ -104,6 +104,9 @@
             <option value="1">Normaali avustus (100% kantama)</option>
             <option value="1.3">Kevyt avustus (130% kantama)</option>
             <option value="0.6">Raskas avustus (60% kantama)</option>
+            <option value="0.7576">Asetus 2 (75.76% kantama)</option>
+            <option value="0.5455">Asetus 3 (54.55% kantama)</option>
+            <option value="0.5152">Asetus 4 (51.52% kantama)</option>
         </select>
 
         <button onclick="calculateRange()">Laske kantama</button>
@@ -159,8 +162,11 @@
                 temperatureEffect = 0.9 + (temperature - 25) * 0.01; // Linear from 90% at 25°C to 95% at 30°C
             }
 
+            // Assistance effect (average between original and new values)
+            let assistanceEffect = (assistance + 1) / 2;
+
             // Calculate final range
-            const finalRange = baseRange * riderWeightEffect * temperatureEffect * assistance;
+            const finalRange = baseRange * riderWeightEffect * temperatureEffect * assistanceEffect;
 
             // Display result
             document.getElementById('rangeValue').textContent = finalRange.toFixed(2);
